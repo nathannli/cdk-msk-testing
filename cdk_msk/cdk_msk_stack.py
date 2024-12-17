@@ -14,7 +14,7 @@ class CdkMskStack(Stack):
         super().__init__(scope, construct_id, **kwargs)
 
         # The code that defines your stack goes here
-
+        # eta 26min spin up time
         msk_cluster = msk.CfnCluster(
             self, "CdkMskCluster",
             cluster_name="cdk-msk-cluster",
@@ -28,33 +28,32 @@ class CdkMskStack(Stack):
             client_authentication=msk.CfnCluster.ClientAuthenticationProperty(
                 sasl=msk.CfnCluster.SaslProperty(
                     iam=msk.CfnCluster.IamProperty(
-                        enabled=True
+                        enabled=False
                     ),
-                    # scram=msk.CfnCluster.ScramProperty(
-                    #     enabled=False
-                    # )
+                    scram=msk.CfnCluster.ScramProperty(
+                        enabled=False
+                    )
                 ),
-                # tls=msk.CfnCluster.TlsProperty(
-                #     certificate_authority_arn_list=[
-                #         "certificateAuthorityArnList"],
-                #     enabled=False
-                # ),
-                unauthenticated=msk.CfnCluster.UnauthenticatedProperty(
+                tls=msk.CfnCluster.TlsProperty(
                     enabled=False
+                ),
+                unauthenticated=msk.CfnCluster.UnauthenticatedProperty(
+                    enabled=True
                 )
             ),
             # configuration_info=msk.CfnCluster.ConfigurationInfoProperty(
             #     arn="arn:aws:kafka:us-east-1:123456789012:configuration/my-configuration",
             #     revision=1
             # )
-            # encryption_info=msk.CfnCluster.EncryptionInfoProperty(
-            #     encryption_at_rest=msk.CfnCluster.EncryptionAtRestProperty(
-            #         data_volume_kms_key_id="arn:aws:kms:us-east-1:123456789012:key/1234abcd-12ab-34cd-56ef-123456789012",
-            #     ),
-            #     encryption_in_transit=msk.CfnCluster.EncryptionInTransitProperty(
-            #         client_broker="TLS",
-            #     ),
-            # ),
+
+            # Encryption in transit
+            encryption_info=msk.CfnCluster.EncryptionInfoProperty(
+                encryption_in_transit=msk.CfnCluster.EncryptionInTransitProperty(
+                    client_broker="PLAINTEXT",
+                    in_cluster=False
+                )
+            )
+
             # logging_info=msk.CfnCluster.LoggingInfoProperty(
             #     broker_logs=msk.CfnCluster.BrokerLogsProperty(
             #         cloud_watch_logs=msk.CfnCluster.CloudWatchLogsProperty(
