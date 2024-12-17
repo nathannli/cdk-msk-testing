@@ -1,8 +1,12 @@
 # https://docs.aws.amazon.com/msk/latest/developerguide/getting-started.html
 
-home_loc="/home/ec2-user"
+home_loc="/home/ubuntu/nathan"
 topic_name="MSKTutorialTopic"
 msk_version=3.7.1
+bootstrap_server="b-2.cdkmskcluster.duzbvi.c6.kafka.us-east-1.amazonaws.com:9092,b-1.cdkmskcluster.duzbvi.c6.kafka.us-east-1.amazonaws.com:9092"
+# bootstrap server
+cluster_arn=$(aws kafka list-clusters --output text --query 'ClusterInfoList[*].ClusterArn')
+bootstrap_server=$(aws kafka get-bootstrap-brokers --cluster-arn $cluster_arn --output text)
 
 # install java
 sudo yum -y install java-11
@@ -21,15 +25,20 @@ cat << EOF > "${home_loc}/kafka_2.13-${msk_version}/bin/client.properties"
 security.protocol=PLAINTEXT
 EOF
 
-# bootstrap server
-cluster_arn=$(aws kafka list-clusters --output text --query 'ClusterInfoList[*].ClusterArn')
-bootstrap_server=$(aws kafka get-bootstrap-brokers --cluster-arn $cluster_arn --output text)
-
 # create topic
 sh "${home_loc}/kafka_2.13-${msk_version}/bin/kafka-topics.sh" --create --bootstrap-server $bootstrap_server --command-config "${home_loc}/kafka_2.13-${msk_version}/bin/client.properties" --replication-factor 2 --partitions 1 --topic $topic_name
 
 # open consumer
 sh "${home_loc}/kafka_2.13-${msk_version}/bin/kafka-console-consumer.sh" --bootstrap-server $bootstrap_server --topic $topic_name --from-beginning --consumer.config "${home_loc}/kafka_2.13-${msk_version}/bin/client.properties"
+sh "/home/ec2-user/kafka_2.13-${msk_version}/bin/kafka-console-consumer.sh" --bootstrap-server $bootstrap_server --topic $topic_name --from-beginning --consumer.config "/home/ec2-user/kafka_2.13-${msk_version}/bin/client.properties"
+
 
 # open producer
 sh "${home_loc}/kafka_2.13-${msk_version}/bin/kafka-console-producer.sh" --broker-list $bootstrap_server --producer.config "${home_loc}/kafka_2.13-${msk_version}/bin/client.properties" --topic $topic_name
+
+# list topics
+sh "${home_loc}/kafka_2.13-${msk_version}/bin/kafka-topics.sh" --list --bootstrap-server $bootstrap_server
+
+
+# run kafka_producer.Producer test
+java -cp tx-kafka-2.0.1-jar-with-dependencies_nathan.jar com.sabio.kafka_producer.Producer myuniquetransactionid MSKTutorialTopic test b-2.cdkmskcluster.duzbvi.c6.kafka.us-east-1.amazonaws.com:9092,b-1.cdkmskcluster.duzbvi.c6.kafka.us-east-1.amazonaws.com:9092 1700000000000
