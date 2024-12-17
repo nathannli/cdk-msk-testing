@@ -2,12 +2,12 @@
 
 home_loc="/home/ec2-user"
 topic_name="MSKTutorialTopic"
+msk_version=3.7.1
 
 # install java
 sudo yum -y install java-11
 
 # download kafka quickstart
-msk_version=3.7.1
 wget "https://archive.apache.org/dist/kafka/${msk_version}/kafka_2.13-${msk_version}.tgz" -O "${home_loc}/kafka_2.13-${msk_version}.tgz"
 
 # extract
