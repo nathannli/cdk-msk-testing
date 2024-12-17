@@ -25,6 +25,8 @@ class CdkMskStack(Stack):
                 instance_type="kafka.m7g.large",
                 security_groups=["sg-4d45ea07"],
             ),
+            
+            # brokers security protocol: plaintext
             client_authentication=msk.CfnCluster.ClientAuthenticationProperty(
                 sasl=msk.CfnCluster.SaslProperty(
                     iam=msk.CfnCluster.IamProperty(
@@ -41,12 +43,14 @@ class CdkMskStack(Stack):
                     enabled=True
                 )
             ),
-            # configuration_info=msk.CfnCluster.ConfigurationInfoProperty(
-            #     arn="arn:aws:kafka:us-east-1:123456789012:configuration/my-configuration",
-            #     revision=1
-            # )
+            
+            # msk config file on aws
+            configuration_info=msk.CfnCluster.ConfigurationInfoProperty(
+                arn="arn:aws:kafka:us-east-1:637328395094:configuration/useful-default-msk-configs/f61ff8e5-3cbc-4364-bb5b-280f0b946d51-6",
+                revision=1
+            ),
 
-            # Encryption in transit
+            # Encryption in transit: plaintext
             encryption_info=msk.CfnCluster.EncryptionInfoProperty(
                 encryption_in_transit=msk.CfnCluster.EncryptionInTransitProperty(
                     client_broker="PLAINTEXT",
