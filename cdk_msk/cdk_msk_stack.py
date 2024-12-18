@@ -19,7 +19,7 @@ class CdkMskStack(Stack):
             self, "CdkMskCluster",
             cluster_name="cdk-msk-cluster",
             kafka_version="3.7.x.kraft",
-            number_of_broker_nodes=2,
+            number_of_broker_nodes=4,
             broker_node_group_info=msk.CfnCluster.BrokerNodeGroupInfoProperty(
                 client_subnets=["subnet-07dbb22503860d099", "subnet-f97fccd7"],
                 instance_type="kafka.m7g.large",
