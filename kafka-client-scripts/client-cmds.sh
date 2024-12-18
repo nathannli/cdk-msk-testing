@@ -1,6 +1,7 @@
 # https://docs.aws.amazon.com/msk/latest/developerguide/getting-started.html
 
 home_loc="/home/ubuntu/nathan"
+home_loc="/home/ec2-user"
 topic_name="MSKTutorialTopic"
 msk_version=3.7.1
 bootstrap_server="b-2.cdkmskcluster.duzbvi.c6.kafka.us-east-1.amazonaws.com:9092,b-1.cdkmskcluster.duzbvi.c6.kafka.us-east-1.amazonaws.com:9092"
@@ -31,6 +32,8 @@ sh "${home_loc}/kafka_2.13-${msk_version}/bin/kafka-topics.sh" --create --bootst
 # open consumer
 sh "${home_loc}/kafka_2.13-${msk_version}/bin/kafka-console-consumer.sh" --bootstrap-server $bootstrap_server --topic $topic_name --from-beginning --consumer.config "${home_loc}/kafka_2.13-${msk_version}/bin/client.properties"
 sh "/home/ec2-user/kafka_2.13-${msk_version}/bin/kafka-console-consumer.sh" --bootstrap-server $bootstrap_server --topic $topic_name --from-beginning --consumer.config "/home/ec2-user/kafka_2.13-${msk_version}/bin/client.properties"
+sh "${home_loc}/kafka_2.13-${msk_version}/bin/kafka-console-consumer.sh" --bootstrap-server $bootstrap_server --topic quickstart-events --from-beginning --consumer.config "${home_loc}/kafka_2.13-${msk_version}/bin/client.properties"
+
 
 
 # open producer
@@ -42,3 +45,6 @@ sh "${home_loc}/kafka_2.13-${msk_version}/bin/kafka-topics.sh" --list --bootstra
 
 # run kafka_producer.Producer test
 java -cp tx-kafka-2.0.1-jar-with-dependencies_nathan.jar com.sabio.kafka_producer.Producer myuniquetransactionid MSKTutorialTopic test b-2.cdkmskcluster.duzbvi.c6.kafka.us-east-1.amazonaws.com:9092,b-1.cdkmskcluster.duzbvi.c6.kafka.us-east-1.amazonaws.com:9092 1700000000000
+
+
+java -cp tx-kafka-2.0.1-jar-with-dependencies.jar com.sabio.kafka_producer.Producer myuniquetransactionid quickstart-events test b-2.cdkmskcluster.duzbvi.c6.kafka.us-east-1.amazonaws.com:9092,b-1.cdkmskcluster.duzbvi.c6.kafka.us-east-1.amazonaws.com:9092
