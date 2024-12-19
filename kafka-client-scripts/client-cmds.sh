@@ -3,6 +3,7 @@
 home_loc="/home/ubuntu/nathan"
 home_loc="/home/ec2-user"
 topic_name="MSKTutorialTopic"
+topic_name="prod_tx0"
 msk_version=3.7.1
 bootstrap_server="b-2.cdkmskcluster.duzbvi.c6.kafka.us-east-1.amazonaws.com:9092,b-1.cdkmskcluster.duzbvi.c6.kafka.us-east-1.amazonaws.com:9092"
 # bootstrap server
@@ -41,6 +42,23 @@ sh "${home_loc}/kafka_2.13-${msk_version}/bin/kafka-console-producer.sh" --broke
 
 # list topics
 sh "${home_loc}/kafka_2.13-${msk_version}/bin/kafka-topics.sh" --list --bootstrap-server $bootstrap_server
+
+# list details of a specific topic
+sh "${home_loc}/kafka_2.13-${msk_version}/bin/kafka-topics.sh" --describe --topic $topic_name --bootstrap-server $bootstrap_server
+
+# alter topic partition count (currently there are 4 brokers) to equal number of brokers
+sh "${home_loc}/kafka_2.13-${msk_version}/bin/kafka-topics.sh" --bootstrap-server $bootstrap_server --alter --topic $topic_name  --partitions 4
+
+# apply reassignment plan
+sh "${home_loc}/kafka_2.13-${msk_version}/bin/kafka-reassign-partitions.sh" --bootstrap-server $bootstrap_server --execute --reassignment-json-file "${home_loc}/reassignment-plan.json"
+
+# check reassignment progress
+sh "${home_loc}/kafka_2.13-${msk_version}/bin/kafka-reassign-partitions.sh" --bootstrap-server $bootstrap_server --verify --reassignment-json-file "${home_loc}/reassignment-plan.json"
+
+
+# force leader re-election
+sh "${home_loc}/kafka_2.13-${msk_version}/bin/kafka-leader-election.sh" --bootstrap-server $bootstrap_server --all-topic-partitions --election-type preferred
+
 
 
 # run kafka_producer.Producer test

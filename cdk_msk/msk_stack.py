@@ -1,21 +1,18 @@
 from aws_cdk import (
-    # Duration,
     Stack,
-    # aws_sqs as sqs,
     aws_msk as msk
 
 )
 from constructs import Construct
 
 
-class CdkMskStack(Stack):
+class MskStack(Stack):
 
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
         # The code that defines your stack goes here
-        # eta 26min spin up time
-        msk_cluster = msk.CfnCluster(
+        msk.CfnCluster(
             self, "CdkMskCluster",
             cluster_name="cdk-msk-cluster",
             kafka_version="3.7.x.kraft",
@@ -25,6 +22,9 @@ class CdkMskStack(Stack):
                 instance_type="kafka.m7g.large",
                 security_groups=["sg-4d45ea07"],
             ),
+
+            # cloudwatch metrics
+            enhanced_monitoring="DEFAULT",
 
             # brokers security protocol: plaintext
             client_authentication=msk.CfnCluster.ClientAuthenticationProperty(
@@ -56,28 +56,21 @@ class CdkMskStack(Stack):
                     client_broker="PLAINTEXT",
                     in_cluster=False
                 )
-            )
+            ),
 
-            # jmx
-            jmx_exporter_property=msk.CfnCluster.JmxExporterProperty(
-                enabled_in_broker=False
-            )
+            # Monitoring / jmx
+            open_monitoring=msk.CfnCluster.OpenMonitoringProperty(
+                prometheus=msk.CfnCluster.PrometheusProperty(
+                    jmx_exporter=msk.CfnCluster.JmxExporterProperty(
+                        enabled_in_broker=True
+                    ),
+                    node_exporter=msk.CfnCluster.NodeExporterProperty(
+                        enabled_in_broker=False
+                    )
+                )
+            ),
 
-            # logging_info=msk.CfnCluster.LoggingInfoProperty(
-            #     broker_logs=msk.CfnCluster.BrokerLogsProperty(
-            #         cloud_watch_logs=msk.CfnCluster.CloudWatchLogsProperty(
-            #             enabled=True,
-            #             log_group="arn:aws:logs:us-east-1:123456789012:log-group:MyLogGroup",
-            #         ),
-            #     ),
-            # ),
-            # tags=[
-            #     {"key": "Name", "value": "CdkMskCluster"},
-            # ],
+            tags={
+                "Name": "CdkMskCluster"
+            }
         )
-
-        # example resource
-        # queue = sqs.Queue(
-        #     self, "CdkMskQueue",
-        #     visibility_timeout=Duration.seconds(300),
-        # )
