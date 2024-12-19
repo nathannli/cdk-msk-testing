@@ -44,7 +44,7 @@ sh "${home_loc}/kafka_2.13-${msk_version}/bin/kafka-console-producer.sh" --broke
 sh "${home_loc}/kafka_2.13-${msk_version}/bin/kafka-topics.sh" --list --bootstrap-server $bootstrap_server
 
 # list details of a specific topic
-sh "${home_loc}/kafka_2.13-${msk_version}/bin/kafka-topics.sh" --describe --topic $topic_name --bootstrap-server $bootstrap_server
+sh "${home_loc}/kafka_2.13-${msk_version}/bin/kafka-topics.sh" --bootstrap-server $bootstrap_server --describe --topic $topic_name
 
 # alter topic partition count (currently there are 4 brokers) to equal number of brokers
 sh "${home_loc}/kafka_2.13-${msk_version}/bin/kafka-topics.sh" --bootstrap-server $bootstrap_server --alter --topic $topic_name  --partitions 4
@@ -66,3 +66,13 @@ java -cp tx-kafka-2.0.1-jar-with-dependencies_nathan.jar com.sabio.kafka_produce
 
 
 java -cp tx-kafka-2.0.1-jar-with-dependencies.jar com.sabio.kafka_producer.Producer myuniquetransactionid quickstart-events test b-2.cdkmskcluster.duzbvi.c6.kafka.us-east-1.amazonaws.com:9092,b-1.cdkmskcluster.duzbvi.c6.kafka.us-east-1.amazonaws.com:9092
+
+
+# rebalancing partition skew
+# first generate a recommendation plan. I do it by topic to check out the plan. then execute it
+kafka_2.13-3.7.1/bin/kafka-reassign-partitions.sh --bootstrap-server $bootstrap_server --generate --topics-to-move-json-file topics-to-move.json --broker-list 1,2,3,4
+kafka_2.13-3.7.1/bin/kafka-reassign-partitions.sh --bootstrap-server $bootstrap_server --reassignment-json-file <json-file> --execute
+
+# rebalancing leader skew
+# check elect preferred leader status
+kafka_2.13-3.7.1/bin/kafka-preferred-replica-election.sh --bootstrap-server $bootstrap_server
